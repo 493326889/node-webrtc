@@ -5,6 +5,7 @@ let globalConfig = {};
 let remoteIp = '127.0.0.1';
 const SemanticSDP = require("semantic-sdp");
 const serverSDP = require('./sdp');
+let serverSDPObj = SemanticSDP.SDPInfo.process(serverSDP.sdp);
 console.log(serverSDP);
 
 wss.on('connection', (ws) => {
@@ -12,7 +13,7 @@ wss.on('connection', (ws) => {
 	ws.on('message', (data) => {
 		data = JSON.parse(data);
 		if('offer' === data.type) {
-			 let sdpObj = SemanticSDP.SDPInfo.process(data.sdp);
+			//  let sdpObj = SemanticSDP.SDPInfo.process(data.sdp).plain();
 			  globalConfig.remoteSDP = data.sdp;
 			  
 			  // send  answer

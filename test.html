@@ -10,7 +10,6 @@
 		var bridge = host + ':9001';
 		var ws = null;
 		var pc = new window.RTCPeerConnection();
-			console.log(host, bridge, pc);
 			var offerOptions = {
 				offerToReceiveAudio: 1,
 				offerToReceiveVideo: 1
@@ -30,6 +29,12 @@
 				doHandleError
 			)	
 		}
+		function setRemoteSDP(desc) {
+			pc.setRemoteDescription(desc).then(
+				doWaitForDataChanel,
+				doHandleError
+			)
+		}
 		function doSendOffer(offer) {
 			ws = new WebSocket("ws://" + bridge);
 			ws.onopen = function () {
@@ -38,6 +43,16 @@
 					{ 'type': offer.type, 'sdp': offer.sdp })
 				);
 			}
+			ws.onmessage = function(event) {
+				var data = JSON.parse(event.data);
+				if ('answer' === data.type) {
+					setRemoteSDP(data)
+				}
+			}
+		}
+
+		function doWaitForDataChanel() {
+			console.log('wait data chanel')
 		}
 
 		function doHandleError(err) {
