@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>webrtc</title>
+</head>
+<body>
+	<script>
+		var host = '127.0.0.1';
+		var bridge = host + ':9001';
+		var ws = null;
+		var pc = new window.RTCPeerConnection();
+			console.log(host, bridge, pc);
+			var offerOptions = {
+				offerToReceiveAudio: 1,
+				offerToReceiveVideo: 1
+			};
+
+			function createOffer() {
+				var offer = pc.createOffer(
+					offerOptions
+				).then(
+					setLocalSDP,
+					doHandleError
+			);
+		}
+		function setLocalSDP(desc) {
+			pc.setLocalDescription(desc).then(
+				doSendOffer(desc),
+				doHandleError
+			)	
+		}
+		function doSendOffer(offer) {
+			ws = new WebSocket("ws://" + bridge);
+			ws.onopen = function () {
+				console.log('sdp', offer.sdp);
+				ws.send(JSON.stringify(
+					{ 'type': offer.type, 'sdp': offer.sdp })
+				);
+			}
+		}
+
+		function doHandleError(err) {
+			console.log(err)
+		}
+
+		createOffer();
+	</script>
+	test webrtc
+</body>
+</html>
