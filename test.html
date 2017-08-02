@@ -1,54 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<title>webrtc</title>
 </head>
+
 <body>
 	<script>
 		var host = '127.0.0.1';
 		var bridge = host + ':9001';
-		var ws = null;
+		var ws = new WebSocket("ws://" + bridge);
 		var pc = new window.RTCPeerConnection();
-			var offerOptions = {
-				offerToReceiveAudio: 1,
-				offerToReceiveVideo: 1
-			};
 
-			function createOffer() {
-				var offer = pc.createOffer(
-					offerOptions
-				).then(
-					setLocalSDP,
-					doHandleError
+		ws.onmessage = function (event) {
+			var data = JSON.parse(event.data);
+			switch(data.type){
+				case 'answer':
+					console.log('remoteSDP',data);
+					setRemoteSDP(data);
+					break;
+				case 'cadidate':
+					console.log('remoteCandidate',data.candidate);
+					setRemoteCadidate(data.candidate);
+					break;
+				default:
+					console.log('not match');
+					break;
+			}
+		}
+
+		//创建ICE处理
+		pc.onicecandidate=function(event){
+			if(event.candidate){
+				console.log('candidate',event.candidate);
+				ws.send(JSON.stringify({
+					type: 'candidate',
+					candidate: event.candidate
+				}));
+			}
+		}
+
+		var offerOptions = {
+			offerToReceiveAudio: 1,
+			offerToReceiveVideo: 1
+		};
+
+		function createOffer() {
+			var offer = pc.createOffer(
+				offerOptions
+			).then(
+				setLocalSDP,
+				doHandleError
 			);
 		}
+
 		function setLocalSDP(desc) {
 			pc.setLocalDescription(desc).then(
 				doSendOffer(desc),
 				doHandleError
-			)	
+			)
 		}
+
 		function setRemoteSDP(desc) {
 			pc.setRemoteDescription(desc).then(
 				doWaitForDataChanel,
 				doHandleError
 			)
 		}
+
 		function doSendOffer(offer) {
-			ws = new WebSocket("ws://" + bridge);
-			ws.onopen = function () {
-				console.log('sdp', offer.sdp);
-				ws.send(JSON.stringify(
-					{ 'type': offer.type, 'sdp': offer.sdp })
-				);
-			}
-			ws.onmessage = function(event) {
-				var data = JSON.parse(event.data);
-				if ('answer' === data.type) {
-					setRemoteSDP(data)
-				}
-			}
+			console.log('sdp', offer.sdp);
+			ws.send(JSON.stringify({
+				'type': offer.type,
+				'sdp': offer.sdp
+			}));
+		}
+
+		//设置远程ICE候选路径
+		function setRemoteCadidate(candidate){
+			return	pc.addIceCandidate(new RTCIceCandidate(candidate));
 		}
 
 		function doWaitForDataChanel() {
@@ -56,11 +87,14 @@
 		}
 
 		function doHandleError(err) {
-			console.log(err)
+			console.log(err);
 		}
 
-		createOffer();
+		ws.onopen=function(){
+			createOffer();
+		};
 	</script>
 	test webrtc
 </body>
+
 </html>
