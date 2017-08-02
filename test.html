@@ -7,21 +7,31 @@
 </head>
 
 <body>
+	<div>
+		<video id="video" autoplay></video>
+	</div>
 	<script>
 		var host = '127.0.0.1';
 		var bridge = host + ':9001';
 		var ws = new WebSocket("ws://" + bridge);
-		var pc = new window.RTCPeerConnection();
+		var pc = null;
+
+		var video = document.getElementById('video');
+
+		ws.onopen = function () {
+			createPC();
+			getMedia();
+		};
 
 		ws.onmessage = function (event) {
 			var data = JSON.parse(event.data);
-			switch(data.type){
+			switch (data.type) {
 				case 'answer':
-					console.log('remoteSDP',data);
+					console.log('remoteSDP', data);
 					setRemoteSDP(data);
 					break;
-				case 'cadidate':
-					console.log('remoteCandidate',data.candidate);
+				case 'candidate':
+					console.log('remoteCandidate', data.candidate);
 					setRemoteCadidate(data.candidate);
 					break;
 				default:
@@ -30,15 +40,35 @@
 			}
 		}
 
-		//创建ICE处理
-		pc.onicecandidate=function(event){
-			if(event.candidate){
-				console.log('candidate',event.candidate);
-				ws.send(JSON.stringify({
-					type: 'candidate',
-					candidate: event.candidate
-				}));
+		function createPC() {
+			pc = new window.RTCPeerConnection();
+			//创建ICE处理
+			pc.onicecandidate = function (event) {
+				if (event.candidate) {
+					console.log('candidate', event.candidate);
+					ws.send(JSON.stringify({
+						type: 'candidate',
+						candidate: event.candidate
+					}));
+				}
 			}
+
+			//远程服务器添加媒体后
+			pc.onaddstream = function (event) {
+				console.log(event.stream);
+			}
+
+			createOffer();
+		}
+
+		//获取音视频流发送到服务端
+		function getMedia(){
+			navigator.getUserMedia({
+				video: true,
+				audio: true
+			},function(stream){
+				pc.addStream(stream);
+			},doHandleError);
 		}
 
 		var offerOptions = {
@@ -63,10 +93,7 @@
 		}
 
 		function setRemoteSDP(desc) {
-			pc.setRemoteDescription(desc).then(
-				doWaitForDataChanel,
-				doHandleError
-			)
+			return pc.setRemoteDescription(desc);
 		}
 
 		function doSendOffer(offer) {
@@ -78,8 +105,8 @@
 		}
 
 		//设置远程ICE候选路径
-		function setRemoteCadidate(candidate){
-			return	pc.addIceCandidate(new RTCIceCandidate(candidate));
+		function setRemoteCadidate(candidate) {
+			return pc.addIceCandidate(new RTCIceCandidate(candidate));
 		}
 
 		function doWaitForDataChanel() {
@@ -89,10 +116,6 @@
 		function doHandleError(err) {
 			console.log(err);
 		}
-
-		ws.onopen=function(){
-			createOffer();
-		};
 	</script>
 	test webrtc
 </body>
