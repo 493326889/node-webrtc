@@ -9,7 +9,7 @@
 		var host = '127.0.0.1';
 		var bridge = host + ':9001';
 		var ws = null;
-		var pc = new window.RTCPeerConnection();
+			var pc = new window.RTCPeerConnection();
 			var offerOptions = {
 				offerToReceiveAudio: 1,
 				offerToReceiveVideo: 1
@@ -21,9 +21,12 @@
 				).then(
 					setLocalSDP,
 					doHandleError
-			);
-		}
-		function setLocalSDP(desc) {
+					);
+				pc.onIceCandidate = function(e) {
+					console.log(e)
+				}
+			}
+			function setLocalSDP(desc) {
 			pc.setLocalDescription(desc).then(
 				doSendOffer(desc),
 				doHandleError
