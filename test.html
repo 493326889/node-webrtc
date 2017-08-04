@@ -18,7 +18,7 @@
 		var video = document.getElementById('video');
 		ws.onopen = function () {
 			createPC();
-			getMedia();
+			// getMedia();
 		};
 		ws.onmessage = function (event) {
 			var data = JSON.parse(event.data);
@@ -49,7 +49,10 @@
 					}));
 				}
 			}
-			pc.onontrack = function(e){
+			pc.oniceconnectionstatechange = function(e) {
+				console.log('oniceconnectionstatechange', e)
+			}
+			pc.ontrack = function(e){
   				if (remoteVideo.srcObject !== e.streams[0]) {
     				remoteVideo.srcObject = e.streams[0];
     				trace('Received remote stream');
@@ -68,15 +71,15 @@
 		function getMedia(){
 			navigator.getUserMedia({
 				video: true,
-				audio: true
+				// audio: true
 			},function(stream){
 				video.srcObject = stream;
-				pc.addStream(stream);
+				// pc.addStream(stream);
 			},doHandleError);
 		}
 
 		var offerOptions = {
-			offerToReceiveAudio: 1,
+			// offerToReceiveAudio: 1,
 			offerToReceiveVideo: 1
 		};
 
