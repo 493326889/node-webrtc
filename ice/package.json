@@ -1,0 +1,15 @@
+{
+  "name": "ice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ice.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ipv6-normalize": "^1.0.1",
+    "wrtc-ice-cand-parse": "0.0.11"
+  }
+}

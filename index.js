@@ -132,10 +132,10 @@ function createAnswer(offer) {
         //Create video media 
         let video = new MediaInfo("video", "video");
         //Get codec types 
-        let vp9 = videoOffer.getCodec("h264");
+        let h264 = videoOffer.getCodec("h264");
         // let fec = videoOffer.getCodec("flexfec-03");
         //Add video codecs 
-        video.addCodec(vp9);
+        video.addCodec(h264);
         // if (fec)
             // video.addCodec(fec);
         //Limit incoming bitrate 
@@ -162,7 +162,7 @@ function createRtpServer() {
     });
 
     rtp.on('message', (msg, info) => {
-        // console.log(msg);
+    	
         let rtpPacket = new RtpPacket(msg);
         console.log('SeqNumber:' + rtpPacket.getSeqNumber().toString() + ' Timestamp :' + rtpPacket.getTimestamp().toString() + ' SSRC :' + rtpPacket.getSSRC().toString() +  ' Payload  :' + rtpPacket.getPayload().toString()  +  ' Buffer  :' + rtpPacket.getBuffer().toString()  + " from " + info.address + " " + info.port);
 

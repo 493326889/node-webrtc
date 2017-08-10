@@ -6,6 +6,7 @@
   "dependencies": {
     "lfsr": "0.0.3",
     "minimist": "^1.2.0",
+    "rtc-peer-connection": "^0.1.16",
     "rtp-rtcp": "^0.0.2",
     "semantic-sdp": "^2.1.1",
     "wrtc-ice-cand-parse": "0.0.11",
