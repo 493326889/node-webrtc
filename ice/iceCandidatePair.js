@@ -2,8 +2,8 @@
  * @jayccchen
  */
 
-var Enum = require('enum');
-var RTCIceCandidate = require('./RTCIceCandidate');
+const Enum = require('enum');
+const RTCIceCandidate = require('./RTCIceCandidate');
 
 // https://tools.ietf.org/html/draft-ietf-ice-rfc5245bis-00#section-5.1.3.4
 // ice对校验状态
