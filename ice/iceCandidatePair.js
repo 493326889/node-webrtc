@@ -1,4 +1,4 @@
-/**
+/**progress
  * @jayccchen
  */
 
@@ -54,8 +54,42 @@ class IceCandidatePair {
             (g > d ? 1 : 0);
     }
 
-    static freeze = () => {
-    	this.state = iceStates.Frozen;
+    freeze() {
+        this.static = iceStates.Frozen;
+    }
+
+    unfreeze() {
+        this.static = iceStates.Waiting;
+    }
+
+    progress() {
+        this.static = iceStates.InProgress;
+    }
+
+    succeed() {
+        this.static = iceStates.Succeeded;
+    }
+
+    failed() {
+        this.static = iceStates.Failed;
+    }
+
+    isWaiting() {
+        return this.static === iceStates.Waiting;
+    }
+
+    isFrozen() {
+        return this.static === iceStates.Frozen;
+    }
+
+    isFailed() {
+        return this.static === iceStates.Failed;
+    }
+
+    isSucceeded() {
+        return this.static === iceStates.Succeeded;
     }
 
 }
+
+module.exports = IceCandidatePair;
